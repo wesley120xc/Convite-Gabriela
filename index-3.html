@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#e8203f">
+<title>Convite para Gabriela</title>
+<style>
+:root{--card:#241014cc;--edge:#ff8a6b}
+*{box-sizing:border-box}
+html,body{height:100%}
+body{margin:0;min-height:100%;background:linear-gradient(160deg,#ff6a3d 0%,#e8203f 55%,#8f1030 100%);font-family:Arial,Helvetica,sans-serif;color:#fff;overflow-x:hidden;padding:env(safe-area-inset-top,0px) 16px env(safe-area-inset-bottom,0px);display:flex;align-items:center;justify-content:center}
+.app{position:relative;width:100%;max-width:420px;min-height:100vh;display:flex;align-items:center;justify-content:center}
+.hearts{position:fixed;inset:0;pointer-events:none;overflow:hidden;z-index:0}
+.hearts span{position:absolute;bottom:-10%;font-size:22px;opacity:0;animation:floatUp linear infinite;filter:drop-shadow(0 2px 3px rgba(0,0,0,.4))}
+@keyframes floatUp{0%{transform:translateY(0) rotate(0deg);opacity:0}8%{opacity:.85}100%{transform:translateY(-115vh) rotate(25deg);opacity:0}}
+.step{display:none;width:100%;z-index:1;animation:pop .35s ease}
+.step.active{display:block}
+@keyframes pop{from{transform:scale(.9);opacity:0}to{transform:scale(1);opacity:1}}
+.card{background:var(--card);border:1px solid #ffffff22;border-radius:22px;padding:28px 24px;text-align:center;backdrop-filter:blur(6px);box-shadow:0 12px 34px rgba(0,0,0,.35)}
+.emoji-big{font-size:52px;margin-bottom:6px}
+h1{font-size:22px;line-height:1.35;margin:6px 0 22px}
+h2{font-size:20px;margin:4px 0 4px}
+p.sub{color:#ffd9cf;font-size:14px;margin:0 0 20px}
+label{display:block;text-align:left;font-size:13px;color:#ffd9cf;margin:16px 0 6px}
+input[type=date],input[type=time]{width:100%;padding:12px 14px;border-radius:12px;border:1px solid #ffffff33;background:#1a0b0e;color:#fff;font-size:15px}
+.btn-row{display:flex;flex-direction:column;align-items:center;gap:14px;position:relative;min-height:90px}
+.btn-primary{margin-top:22px;width:100%;padding:15px;border:none;border-radius:16px;background:linear-gradient(135deg,#ff7a45,#e8203f);color:#fff;font-size:16px;font-weight:bold;cursor:pointer;box-shadow:0 8px 18px rgba(232,32,63,.45)}
+.btn-primary:active{transform:scale(.98)}
+.btn-ghost{background:none;border:none;color:#ffffffaa;font-size:14px;cursor:pointer;position:relative;transition:transform .15s ease}
+.grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin-top:16px}
+.tile{background:#1a0b0e;border:2px solid #ffffff22;border-radius:14px;padding:14px 6px;cursor:pointer;font-size:13px;color:#fff;transition:.15s}
+.tile .ic{font-size:26px;display:block;margin-bottom:6px}
+.tile.sel{border-color:#ff7a45;background:#3a1218;box-shadow:0 0 0 2px #ff7a4555}
+ul.resumo{list-style:none;padding:0;margin:18px 0 6px;text-align:left;font-size:15px}
+ul.resumo li{margin:8px 0}
+.hint{font-size:12px;color:#ffd9cfcc;margin-top:14px}
+</style>
+</head>
+<body>
+<div class="app">
+<div class="hearts" id="hearts"></div>
+
+<section id="step1" class="step active"><div class="card">
+<div class="emoji-big">🥺</div>
+<h1>Gabriela, você aceitaria ir num date comigo?</h1>
+<div class="btn-row">
+<button class="btn-primary" onclick="goTo(2)">SIM 💙</button>
+<button class="btn-ghost" id="btnNao">não</button>
+</div></div></section>
+
+<section id="step2" class="step"><div class="card">
+<div class="emoji-big">😳</div>
+<h2>Você disse SIM?</h2>
+<p class="sub">Eu tava esperando você dizer não, kkkk</p>
+<button class="btn-primary" onclick="goTo(3)">PRÓXIMO 💙</button>
+</div></section>
+
+<section id="step3" class="step"><div class="card">
+<h2>📅 Quando você tá livre?</h2>
+<label for="data">Escolhe a data</label>
+<input type="date" id="data">
+<label for="hora">Escolhe o horário</label>
+<input type="time" id="hora">
+<button class="btn-primary" onclick="validarPasso3()">SELECIONAR A DATA 💙</button>
+</div></section>
+
+<section id="step4" class="step"><div class="card">
+<h2>🍽️ O que vamos comer?</h2>
+<div class="grid" id="gridComida"></div>
+<button class="btn-primary" onclick="validarPasso4()">PRÓXIMO 💙</button>
+</div></section>
+
+<section id="step5" class="step"><div class="card">
+<h2>Qual é a vibe? 😎</h2>
+<div class="grid" id="gridVibe"></div>
+<button class="btn-primary" onclick="validarPasso5()">BORA! 💙</button>
+</div></section>
+
+<section id="step6" class="step"><div class="card">
+<div class="emoji-big">🐾</div>
+<h2>Tô contigo, princesa.</h2>
+<p class="sub">Fica pronta que eu vou te buscar 🚗</p>
+<ul class="resumo" id="resumo"></ul>
+<button class="btn-primary" onclick="enviar()">CONFIRMAR 💌</button>
+<div class="hint">Vai abrir o WhatsApp pra enviar sua resposta.</div>
+</div></section>
+</div>
+
+<script>
+const estado={comida:null,vibe:null};
+const comidas=[["🌭","Lanche na rua"],["🍽️","Almoço no restaurante"],["🍟","Besteirinha qualquer"]];
+const vibes=[["🏖️","Rolê na praia"],["🎬","Cinema"]];
+
+function montarGrid(id,lista,chave){
+ const el=document.getElementById(id);
+ el.innerHTML=lista.map(([ic,label])=>`<div class="tile" data-v="${label}" onclick="selecionar('${id}','${chave}','${label}',this)"><span class="ic">${ic}</span>${label}</div>`).join('');
+}
+montarGrid('gridComida',comidas,'comida');
+montarGrid('gridVibe',vibes,'vibe');
+
+function selecionar(gridId,chave,valor,el){
+ document.querySelectorAll('#'+gridId+' .tile').forEach(t=>t.classList.remove('sel'));
+ el.classList.add('sel');estado[chave]=valor;
+}
+function goTo(n){
+ document.querySelectorAll('.step').forEach(s=>s.classList.remove('active'));
+ document.getElementById('step'+n).classList.add('active');
+ window.scrollTo({top:0,behavior:'smooth'});
+}
+function validarPasso3(){
+ const data=document.getElementById('data').value, hora=document.getElementById('hora').value;
+ if(!data||!hora){shake('step3');return}
+ estado.data=data;estado.hora=hora;goTo(4);
+}
+function validarPasso4(){if(!estado.comida){shake('step4');return}goTo(5)}
+function validarPasso5(){if(!estado.vibe){shake('step5');return}preencherResumo();goTo(6)}
+function shake(id){
+ const card=document.querySelector('#'+id+' .card');
+ card.style.transition='transform .1s';card.style.transform='translateX(-6px)';
+ setTimeout(()=>card.style.transform='translateX(6px)',100);
+ setTimeout(()=>card.style.transform='translateX(0)',200);
+}
+function formatarData(iso){const[a,m,d]=iso.split('-');return `${d}/${m}/${a}`}
+function preencherResumo(){
+ document.getElementById('resumo').innerHTML=`<li>📅 ${formatarData(estado.data)}</li><li>🕖 ${estado.hora}</li><li>🍽️ ${estado.comida}</li><li>✨ ${estado.vibe}</li>`;
+}
+function enviar(){
+ const texto=`Oi! Aqui é a Gabriela 👑\nEu disse SIM pro date! 😳\nData: ${formatarData(estado.data)}\nHorário: ${estado.hora}\nComida: ${estado.comida}\nVibe: ${estado.vibe}\nTô te esperando! 💕`;
+ const numero="5581988454261";
+ window.open(`https://wa.me/${numero}?text=${encodeURIComponent(texto)}`,'_blank');
+}
+const btnNao=document.getElementById('btnNao');
+function fugir(){const maxX=90,maxY=40;const x=(Math.random()*2-1)*maxX,y=(Math.random()*2-1)*maxY;btnNao.style.transform=`translate(${x}px,${y}px)`}
+btnNao.addEventListener('mouseenter',fugir);
+btnNao.addEventListener('touchstart',e=>{e.preventDefault();fugir()});
+btnNao.addEventListener('click',e=>{e.preventDefault();fugir()});
+const heartsWrap=document.getElementById('hearts');
+const emojisCoracao=['🖤','❤️','💙'];
+for(let i=0;i<16;i++){
+ const s=document.createElement('span');s.textContent=emojisCoracao[i%emojisCoracao.length];
+ s.style.left=Math.random()*100+'%';
+ s.style.animationDuration=(7+Math.random()*8)+'s';
+ s.style.animationDelay=(Math.random()*10)+'s';
+ s.style.fontSize=(16+Math.random()*18)+'px';
+ heartsWrap.appendChild(s);
+}
+</script>
+</body>
+</html>
